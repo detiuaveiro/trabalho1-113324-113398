@@ -320,6 +320,20 @@ int ImageMaxval(Image img) { ///
 void ImageStats(Image img, uint8* min, uint8* max) { ///
   assert (img != NULL);
   // Insert your code here!
+  *min = 255;  
+  *max = 0;    
+
+  for (int y = 0; y < img->height; y++) {
+    for (int x = 0; x < img->width; x++) {
+      uint8 pixel = img->pixel[y * img->width + x];
+      if (pixel < *min) {
+        *min = pixel;
+      }
+      if (pixel > *max) {
+        *max = pixel;
+      }
+    }
+  }
 }
 
 /// Check if pixel position (x,y) is inside img.
@@ -332,7 +346,9 @@ int ImageValidPos(Image img, int x, int y) { ///
 int ImageValidRect(Image img, int x, int y, int w, int h) { ///
   assert (img != NULL);
   // Insert your code here!
+  return (0 <= x && x + w <= img->width) && (0 <= y && y + h <= img->height);
 }
+
 
 /// Pixel get & set operations
 
