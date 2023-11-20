@@ -8,7 +8,7 @@
 ///
 /// João Manuel Rodrigues <jmr@ua.pt>
 /// 2013, 2023
-// siuuuu
+// 
 // Student authors (fill in below):
 // NMec:  Name:
 // 113324, Pedro Mariano
