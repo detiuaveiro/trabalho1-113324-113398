@@ -11,11 +11,11 @@
 
 // Student authors (fill in below):
 // NMec:  Name:
-// 
-// 
+// 113324, Pedro Mariano
+// 113398, Diogo Valverde
 // 
 // Date:
-//
+//24/10/2023
 
 #include "image8bit.h"
 
