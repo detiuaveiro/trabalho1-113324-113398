@@ -11,11 +11,11 @@
 // 
 // Student authors (fill in below):
 // NMec:  Name:
-// 
-// 
+// 113324, Pedro Mariano
+// 113398, Diogo Valverde
 // 
 // Date:
-//
+//24/11/2023
 
 #include "image8bit.h"
 
@@ -172,6 +172,27 @@ Image ImageCreate(int width, int height, uint8 maxval) { ///
   assert (height >= 0);
   assert (0 < maxval && maxval <= PixMax);
   // Insert your code here!
+  Image img = (Image)malloc(sizeof(struct image));
+  if (!img) {
+    errCause = "Memory allocation failed for image structure";
+    return NULL;
+  }
+
+  img->width = width;
+  img->height = height;
+  img->maxval = maxval;
+
+  img->pixel = (uint8*)malloc(width * height * sizeof(uint8));
+  if (!img->pixel) {
+    free(img);
+    errCause = "Memory allocation failed for pixel data";
+    return NULL;
+  }
+
+  // Initialize the image to black (all pixels to zero)
+  memset(img->pixel, 0, width * height * sizeof(uint8));
+  
+  return img;
 }
 
 /// Destroy the image pointed to by (*imgp).
@@ -182,6 +203,11 @@ Image ImageCreate(int width, int height, uint8 maxval) { ///
 void ImageDestroy(Image* imgp) { ///
   assert (imgp != NULL);
   // Insert your code here!
+  if (*imgp) {
+    free((*imgp)->pixel); // Free the pixel data
+    free(*imgp);          // Free the image structure
+    *imgp = NULL;         // Set the pointer to NULL
+  }
 }
 
 
