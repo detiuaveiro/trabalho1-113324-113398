@@ -398,6 +398,10 @@ void ImageSetPixel(Image img, int x, int y, uint8 level) { ///
 void ImageNegative(Image img) { ///
   assert (img != NULL);
   // Insert your code here!
+  int totalPixels = img->width * img->height;
+  for (int i = 0; i < totalPixels; i++) {
+    img->pixel[i] = 255 - img->pixel[i];  // Assuming 8-bit gray levels
+  }
 }
 
 /// Apply threshold to image.
@@ -406,6 +410,14 @@ void ImageNegative(Image img) { ///
 void ImageThreshold(Image img, uint8 thr) { ///
   assert (img != NULL);
   // Insert your code here!
+  int totalPixels = img->width * img->height;
+  for (int i = 0; i < totalPixels; i++) {
+    if (img->pixel[i] < thr) {
+      img->pixel[i] = 0;  // Black
+    } else {
+      img->pixel[i] = 255;  // White
+    }
+  }
 }
 
 /// Brighten image by a factor.
@@ -416,6 +428,14 @@ void ImageBrighten(Image img, double factor) { ///
   assert (img != NULL);
   // ? assert (factor >= 0.0);
   // Insert your code here!
+  assert(factor >= 0.0);
+
+  int totalPixels = img->width * img->height;
+  for (int i = 0; i < totalPixels; i++) {
+    int newLevel = (int)(img->pixel[i] * factor);
+    if (newLevel > 255) newLevel = 255;  // Saturate at max value
+    img->pixel[i] = (uint8)newLevel;
+  }
 }
 
 
