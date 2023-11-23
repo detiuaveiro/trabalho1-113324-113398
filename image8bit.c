@@ -147,14 +147,23 @@ void ImageInit(void) { ///
   InstrCalibrate();
   InstrName[0] = "pixmem";  // InstrCount[0] will count pixel array acesses
   // Name other counters here...
-  
+  InstrName[1] = "imageCreateDestroy";
+  InstrName[2] = "fileIO";
+  InstrName[3] = "pixelModifications";
+  InstrName[4] = "transformOps";
+  InstrName[5] = "filterOps";
+  InstrName[6] = "memAllocFailures";
 }
 
 // Macros to simplify accessing instrumentation counters:
 #define PIXMEM InstrCount[0]
 // Add more macros here...
-
-// TIP: Search for PIXMEM or InstrCount to see where it is incremented!
+#define IMG_CREATE_DESTROY   InstrCount[1]
+#define FILE_IO              InstrCount[2]
+#define PIXEL_MODIFICATIONS  InstrCount[3]
+#define TRANSFORM_OPS        InstrCount[4]
+#define FILTER_OPS           InstrCount[5]
+#define MEM_ALLOC_FAILURES   InstrCount[6]
 
 
 /// Image management functions
@@ -184,6 +193,7 @@ Image ImageCreate(int width, int height, uint8 maxval) { ///
 
   img->pixel = (uint8*)malloc(width * height * sizeof(uint8));
   if (!img->pixel) {
+    MEM_ALLOC_FAILURES++;
     free(img);
     errCause = "Memory allocation failed for pixel data";
     return NULL;
@@ -191,7 +201,7 @@ Image ImageCreate(int width, int height, uint8 maxval) { ///
 
   // Initialize the image to black (all pixels to zero)
   memset(img->pixel, 0, width * height * sizeof(uint8));
-  
+  IMG_CREATE_DESTROY++;
   return img;
 }
 
@@ -208,6 +218,7 @@ void ImageDestroy(Image* imgp) { ///
     free(*imgp);          // Free the image structure
     *imgp = NULL;         // Set the pointer to NULL
   }
+  IMG_CREATE_DESTROY++;
 }
 
 
@@ -234,6 +245,7 @@ static int skipComments(FILE* f) {
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageLoad(const char* filename) { ///
+  FILE_IO++;
   int w, h;
   int maxval;
   char c;
@@ -377,6 +389,7 @@ uint8 ImageGetPixel(Image img, int x, int y) { ///
 
 /// Set the pixel at position (x,y) to new level.
 void ImageSetPixel(Image img, int x, int y, uint8 level) { ///
+  PIXEL_MODIFICATIONS++;
   assert (img != NULL);
   assert (ImageValidPos(img, x, y));
   PIXMEM += 1;  // count one pixel access (store)
@@ -459,6 +472,7 @@ void ImageBrighten(Image img, double factor) { ///
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageRotate(Image img) { ///
+  TRANSFORM_OPS++;
   assert (img != NULL);
   // Insert your code here!
   Image newImg = ImageCreate(img->height, img->width, img->maxval);
@@ -628,7 +642,7 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
 void ImageBlur(Image img, int dx, int dy) { ///
   // Insert your code here!
   assert(img != NULL);
-
+  FILTER_OPS++;
   int width = img->width;
   int height = img->height;
   uint8* tempPixels = (uint8*)malloc(width * height * sizeof(uint8));
