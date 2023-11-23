@@ -181,28 +181,30 @@ Image ImageCreate(int width, int height, uint8 maxval) { ///
   assert (height >= 0);
   assert (0 < maxval && maxval <= PixMax);
   // Insert your code here!
-  Image img = (Image)malloc(sizeof(struct image));
+  Image img = (Image)malloc(sizeof(struct image)); //Reserva memória para a estrutura da imagem
   if (!img) {
+    //Define a causa da falha e retorna NULL se a reserva de memória falhar
     errCause = "Memory allocation failed for image structure";
     return NULL;
   }
-
+  //Inicia os atributos da imagem
   img->width = width;
   img->height = height;
   img->maxval = maxval;
 
-  img->pixel = (uint8*)malloc(width * height * sizeof(uint8));
+  img->pixel = (uint8*)malloc(width * height * sizeof(uint8)); //Reserva memória para os dados dos pixels
   if (!img->pixel) {
-    MEM_ALLOC_FAILURES++;
-    free(img);
+    //Define a causa da falha e retorna NULL se a reserva de memória falhar
+    MEM_ALLOC_FAILURES++; //Incrementa o contador de falhas
+    free(img); // Liberta o espaço reservado na memória para os dados dos pixels
     errCause = "Memory allocation failed for pixel data";
     return NULL;
   }
 
   // Initialize the image to black (all pixels to zero)
   memset(img->pixel, 0, width * height * sizeof(uint8));
-  IMG_CREATE_DESTROY++;
-  return img;
+  IMG_CREATE_DESTROY++; //Incrementa o contador de gerenciamento de recursos
+  return img; //Retorna a imagem 
 }
 
 /// Destroy the image pointed to by (*imgp).
@@ -218,7 +220,7 @@ void ImageDestroy(Image* imgp) { ///
     free(*imgp);          // Free the image structure
     *imgp = NULL;         // Set the pointer to NULL
   }
-  IMG_CREATE_DESTROY++;
+  IMG_CREATE_DESTROY++; //Incrementa o contador de gerenciamento de recursos
 }
 
 
@@ -245,15 +247,14 @@ static int skipComments(FILE* f) {
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageLoad(const char* filename) { ///
-  FILE_IO++;
-  int w, h;
+  FILE_IO++; //Incrementa as operações I/O 
+  int w, h;  //Largura e altura da imagem
   int maxval;
   char c;
-  FILE* f = NULL;
-  Image img = NULL;
+  FILE* f = NULL; //Ponteiro do arquivo
+  Image img = NULL; //Ponteiro da imagem
 
-  int success = 
-  check( (f = fopen(filename, "rb")) != NULL, "Open failed" ) &&
+  int success = check( (f = fopen(filename, "rb")) != NULL, "Open failed" ) &&
   // Parse PGM header
   check( fscanf(f, "P%c ", &c) == 1 && c == '5' , "Invalid file format" ) &&
   skipComments(f) >= 0 &&
@@ -272,11 +273,11 @@ Image ImageLoad(const char* filename) { ///
   // Cleanup
   if (!success) {
     errsave = errno;
-    ImageDestroy(&img);
+    ImageDestroy(&img); //Destrói a imagem em caso de falha
     errno = errsave;
   }
-  if (f != NULL) fclose(f);
-  return img;
+  if (f != NULL) fclose(f); //Fecha o arquivo se não for NULL
+  return img; //Retorna a imagem
 }
 
 /// Save image to PGM file.
@@ -284,21 +285,21 @@ Image ImageLoad(const char* filename) { ///
 /// On failure, returns 0, errno/errCause are set appropriately, and
 /// a partial and invalid file may be left in the system.
 int ImageSave(Image img, const char* filename) { ///
-  assert (img != NULL);
-  int w = img->width;
-  int h = img->height;
-  uint8 maxval = img->maxval;
-  FILE* f = NULL;
+  assert (img != NULL); //Garante que há uma imagem
+  int w = img->width; //Largura da imagem
+  int h = img->height; //Altura da imagem
+  uint8 maxval = img->maxval; //Valor máximo 
+  FILE* f = NULL; //Ponteiro de arquivo 
 
   int success =
-  check( (f = fopen(filename, "wb")) != NULL, "Open failed" ) &&
-  check( fprintf(f, "P5\n%d %d\n%u\n", w, h, maxval) > 0, "Writing header failed" ) &&
-  check( fwrite(img->pixel, sizeof(uint8), w*h, f) == w*h, "Writing pixels failed" ); 
+  check( (f = fopen(filename, "wb")) != NULL, "Open failed" ) && //Abre o arquivo e verifica se há erros 
+  check( fprintf(f, "P5\n%d %d\n%u\n", w, h, maxval) > 0, "Writing header failed" ) && //Escreve o cabeçalho
+  check( fwrite(img->pixel, sizeof(uint8), w*h, f) == w*h, "Writing pixels failed" ); //Escreve os pixels
   PIXMEM += (unsigned long)(w*h);  // count pixel memory accesses
 
   // Cleanup
-  if (f != NULL) fclose(f);
-  return success;
+  if (f != NULL) fclose(f); //Fecha o arquivo se não for NULL
+  return success; 
 }
 
 
