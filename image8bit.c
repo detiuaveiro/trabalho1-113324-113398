@@ -556,10 +556,8 @@ void ImagePaste(Image img1, int x, int y, Image img2) { ///
 /// alpha usually is in [0.0, 1.0], but values outside that interval
 /// may provide interesting effects.  Over/underflows should saturate.
 void ImageBlend(Image img1, int x, int y, Image img2, double alpha) { ///
-  assert (img1 != NULL);
-  assert (img2 != NULL);
-  assert (ImageValidRect(img1, x, y, img2->width, img2->height));
-  // Insert your code here!
+  assert(img1 != NULL && img2 != NULL);
+  assert(ImageValidRect(img1, x, y, img2->width, img2->height));
   assert(alpha >= 0.0 && alpha <= 1.0);
 
   for (int i = 0; i < img2->height; ++i) {
@@ -567,8 +565,8 @@ void ImageBlend(Image img1, int x, int y, Image img2, double alpha) { ///
       int idx1 = (y + i) * img1->width + (x + j);
       int idx2 = i * img2->width + j;
 
-      uint8 blendedPixel = (uint8)(alpha * img2->pixel[idx2] + (1 - alpha) * img1->pixel[idx1]);
-      img1->pixel[idx1] = blendedPixel;
+      double blendedValue = alpha * img2->pixel[idx2] + (1 - alpha) * img1->pixel[idx1];
+      img1->pixel[idx1] = (uint8)(blendedValue > 255.0 ? 255.0 : blendedValue + 0.5);
     }
   }
 }
@@ -638,23 +636,35 @@ void ImageBlur(Image img, int dx, int dy) { ///
     return;
   }
 
+  // Copying original pixels to a temporary buffer
   memcpy(tempPixels, img->pixel, width * height * sizeof(uint8));
 
-  for (int y = dy; y < height - dy; ++y) {
-    for (int x = dx; x < width - dx; ++x) {
-      int sum = 0;
+  // Applying blur to each pixel
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      double sum = 0;
       int count = 0;
 
+      // Calculating the mean for the surrounding pixels
       for (int i = -dy; i <= dy; ++i) {
         for (int j = -dx; j <= dx; ++j) {
-          sum += tempPixels[(y + i) * width + (x + j)];
-          count++;
+          int newY = y + i;
+          int newX = x + j;
+
+          // Checking if the new coordinates are within the image boundaries
+          if (newY >= 0 && newY < height && newX >= 0 && newX < width) {
+            sum += tempPixels[newY * width + newX];
+            count++;
+          }
         }
       }
 
-      img->pixel[y * width + x] = sum / count;
+      // Updating the pixel value with the average
+      img->pixel[y * width + x] = (uint8)(sum / count + 0.5); // Adding 0.5 for rounding
     }
   }
+
+  // Freeing the temporary buffer
   free(tempPixels);
 }
 
