@@ -5,7 +5,7 @@
 # make clean        # to cleanup object files and executables
 # make cleanobj     # to cleanup object files only
 
-CFLAGS = -Wall -O2 -g
+CFLAGS = -Wall -O2 -g-
 
 PROGS = imageTool imageTest
 
