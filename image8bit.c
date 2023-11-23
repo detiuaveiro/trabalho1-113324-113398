@@ -18,7 +18,7 @@
 //24/11/2023
 
 #include "image8bit.h"
-
+#include <string.h>
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
