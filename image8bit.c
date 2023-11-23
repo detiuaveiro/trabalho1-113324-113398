@@ -19,7 +19,7 @@
 //24/11/2023
 
 #include "image8bit.h"
-
+#include <string.h>
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -426,15 +426,13 @@ void ImageThreshold(Image img, uint8 thr) { ///
 /// This will brighten the image if factor>1.0 and
 /// darken the image if factor<1.0.
 void ImageBrighten(Image img, double factor) { ///
-  assert (img != NULL);
+  assert(img != NULL && factor >= 0.0);
   // ? assert (factor >= 0.0);
   // Insert your code here!
-  assert(factor >= 0.0);
-
   int totalPixels = img->width * img->height;
   for (int i = 0; i < totalPixels; i++) {
-    int newLevel = (int)(img->pixel[i] * factor);
-    if (newLevel > 255) newLevel = 255;  // Saturate at max value
+    int newLevel = (int)(img->pixel[i] * factor + 0.5); // Add 0.5 for rounding
+    if (newLevel > img->maxval) newLevel = img->maxval; // Use img->maxval for saturation
     img->pixel[i] = (uint8)newLevel;
   }
 }
@@ -584,6 +582,19 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) { ///
   assert (img2 != NULL);
   assert (ImageValidPos(img1, x, y));
   // Insert your code here!
+  if (x + img2->width > img1->width || y + img2->height > img1->height) {
+    return 0; 
+  }
+
+  for (int i = 0; i < img2->height; ++i) {
+    for (int j = 0; j < img2->width; ++j) {
+      if (img1->pixel[(y + i) * img1->width + (x + j)] != img2->pixel[i * img2->width + j]) {
+        return 0; 
+      }
+    }
+  }
+
+  return 1; 
 }
 
 /// Locate a subimage inside another image.
@@ -594,6 +605,20 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
   assert (img1 != NULL);
   assert (img2 != NULL);
   // Insert your code here!
+  assert(px != NULL);
+  assert(py != NULL);
+
+  for (int y = 0; y <= img1->height - img2->height; y++) {
+    for (int x = 0; x <= img1->width - img2->width; x++) {
+      if (ImageMatchSubImage(img1, x, y, img2)) {
+        *px = x;
+        *py = y;
+        return 1; 
+      }
+    }
+  }
+
+  return 0; 
 }
 
 
@@ -605,6 +630,33 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
 /// The image is changed in-place.
 void ImageBlur(Image img, int dx, int dy) { ///
   // Insert your code here!
+  assert(img != NULL);
+
+  int width = img->width;
+  int height = img->height;
+  uint8* tempPixels = (uint8*)malloc(width * height * sizeof(uint8));
+  if (!tempPixels) {
+    return;
+  }
+
+  memcpy(tempPixels, img->pixel, width * height * sizeof(uint8));
+
+  for (int y = dy; y < height - dy; ++y) {
+    for (int x = dx; x < width - dx; ++x) {
+      int sum = 0;
+      int count = 0;
+
+      for (int i = -dy; i <= dy; ++i) {
+        for (int j = -dx; j <= dx; ++j) {
+          sum += tempPixels[(y + i) * width + (x + j)];
+          count++;
+        }
+      }
+
+      img->pixel[y * width + x] = sum / count;
+    }
+  }
+  free(tempPixels);
 }
 
 =========
