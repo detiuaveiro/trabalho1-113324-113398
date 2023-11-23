@@ -335,15 +335,15 @@ void ImageStats(Image img, uint8* min, uint8* max) { ///
   // Insert your code here!
   *min = 255;  
   *max = 0;    
-
+  //Percorre cada pixel
   for (int y = 0; y < img->height; y++) {
     for (int x = 0; x < img->width; x++) {
-      uint8 pixel = img->pixel[y * img->width + x];
+      uint8 pixel = img->pixel[y * img->width + x]; //Obtém o valor do pixel
       if (pixel < *min) {
-        *min = pixel;
+        *min = pixel; //Atualiza o mínimo
       }
       if (pixel > *max) {
-        *max = pixel;
+        *max = pixel; //Atualiza o máximo
       }
     }
   }
@@ -359,6 +359,9 @@ int ImageValidPos(Image img, int x, int y) { ///
 int ImageValidRect(Image img, int x, int y, int w, int h) { ///
   assert (img != NULL);
   // Insert your code here!
+  // Primeiro, verifica se o canto esquerdo superior (x, y) está dentro da imagem,
+  // e então verifica se o canto direito inferior (x + w, y + h) também está.
+  // Isso é feito comparando as coordenadas x e y com as dimensões da imagem
   return (0 <= x && x + w <= img->width) && (0 <= y && y + h <= img->height);
 }
 
@@ -376,8 +379,11 @@ int ImageValidRect(Image img, int x, int y, int w, int h) { ///
 static inline int G(Image img, int x, int y) {
   int index = y * img->width + x;
   // Insert your code here!
+  // Verifica se o índice calculado está dentro dos limites válidos da imagem.
+  // Esta afirmação garante que o índice não seja negativo e que esteja dentro
+  // do intervalo total de pixels da imagem (largura * altura)
   assert (0 <= index && index < img->width*img->height);
-  return index;
+  return index; //Devolve o índice calculado
 }
 
 /// Get the pixel (level) at position (x,y).
@@ -412,7 +418,7 @@ void ImageSetPixel(Image img, int x, int y, uint8 level) { ///
 void ImageNegative(Image img) { ///
   assert (img != NULL);
   // Insert your code here!
-  int totalPixels = img->width * img->height;
+  int totalPixels = img->width * img->height; //Calcula os pixels da imagem 
   for (int i = 0; i < totalPixels; i++) {
     img->pixel[i] = 255 - img->pixel[i];  // Assuming 8-bit gray levels
   }
@@ -424,8 +430,9 @@ void ImageNegative(Image img) { ///
 void ImageThreshold(Image img, uint8 thr) { ///
   assert (img != NULL);
   // Insert your code here!
-  int totalPixels = img->width * img->height;
+  int totalPixels = img->width * img->height; //Calcula os pixels da imagem 
   for (int i = 0; i < totalPixels; i++) {
+    // Define o pixel como preto ou branco com base no limiar 'thr'
     if (img->pixel[i] < thr) {
       img->pixel[i] = 0;  // Black
     } else {
@@ -442,11 +449,11 @@ void ImageBrighten(Image img, double factor) { ///
   assert(img != NULL && factor >= 0.0);
   // ? assert (factor >= 0.0);
   // Insert your code here!
-  int totalPixels = img->width * img->height;
+  int totalPixels = img->width * img->height; //Calcula os pixels da imagem 
   for (int i = 0; i < totalPixels; i++) {
     int newLevel = (int)(img->pixel[i] * factor + 0.5); // Add 0.5 for rounding
     if (newLevel > img->maxval) newLevel = img->maxval; // Use img->maxval for saturation
-    img->pixel[i] = (uint8)newLevel;
+    img->pixel[i] = (uint8)newLevel; // Atualiza o pixel com o novo nível de luminosidade
   }
 }
 
@@ -473,22 +480,23 @@ void ImageBrighten(Image img, double factor) { ///
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageRotate(Image img) { ///
-  TRANSFORM_OPS++;
+  TRANSFORM_OPS++; //Incrementa o contador de operações de transformação
   assert (img != NULL);
   // Insert your code here!
-  Image newImg = ImageCreate(img->height, img->width, img->maxval);
+  Image newImg = ImageCreate(img->height, img->width, img->maxval); //Cria nova imagem com as medidas invertidas
   if (newImg == NULL) return NULL;
 
   for (int x = 0; x < img->width; x++) {
     for (int y = 0; y < img->height; y++) {
       uint8 pixel = img->pixel[y * img->width + x];
+      //Calcula novas coordenadas após rotação
       int newX = y;
       int newY = img->width - 1 - x;
-      newImg->pixel[newY * newImg->width + newX] = pixel;
+      newImg->pixel[newY * newImg->width + newX] = pixel; //Atribui pixel à nova imagem
     }
   }
 
-  return newImg;
+  return newImg; //Devolve a nova imagem 
 }
 
 /// Mirror an image = flip left-right.
@@ -501,18 +509,18 @@ Image ImageRotate(Image img) { ///
 Image ImageMirror(Image img) { ///
   assert (img != NULL);
   // Insert your code here!
-  Image newImg = ImageCreate(img->width, img->height, img->maxval);
+  Image newImg = ImageCreate(img->width, img->height, img->maxval); //Cria imagem com as mesmas dimensões do original
   if (newImg == NULL) return NULL;
 
   for (int x = 0; x < img->width; x++) {
     for (int y = 0; y < img->height; y++) {
       uint8 pixel = img->pixel[y * img->width + x];
-      int newX = img->width - 1 - x;
-      newImg->pixel[y * newImg->width + newX] = pixel;
+      int newX = img->width - 1 - x; //Calcula as novas coordenadas após o espelhamento 
+      newImg->pixel[y * newImg->width + newX] = pixel; //Atribui o pixel à nova imagem 
     }
   }
 
-  return newImg;
+  return newImg; //Devolve a nova imagem
 }
 
 
@@ -533,16 +541,16 @@ Image ImageCrop(Image img, int x, int y, int w, int h) { ///
   assert (img != NULL);
   assert (ImageValidRect(img, x, y, w, h));
   // Insert your code here!
-  Image croppedImg = ImageCreate(w, h, img->maxval);
+  Image croppedImg = ImageCreate(w, h, img->maxval); //Cria nova imagem
   if (croppedImg == NULL) return NULL;
 
   for (int i = 0; i < h; ++i) {
     for (int j = 0; j < w; ++j) {
-      croppedImg->pixel[i * w + j] = img->pixel[(y + i) * img->width + (x + j)];
+      croppedImg->pixel[i * w + j] = img->pixel[(y + i) * img->width + (x + j)]; //Copia os pixels da área específica para a nova imagem 
     }
   }
 
-  return croppedImg;
+  return croppedImg; //Devolve a nova imagem
 }
 
 
@@ -557,6 +565,7 @@ void ImagePaste(Image img1, int x, int y, Image img2) { ///
   assert (img2 != NULL);
   assert (ImageValidRect(img1, x, y, img2->width, img2->height));
   // Insert your code here!
+  // Copia os pixels de img2 para img1 
   for (int i = 0; i < img2->height; ++i) {
     for (int j = 0; j < img2->width; ++j) {
       img1->pixel[(y + i) * img1->width + (x + j)] = img2->pixel[i * img2->width + j];
@@ -571,15 +580,15 @@ void ImagePaste(Image img1, int x, int y, Image img2) { ///
 /// alpha usually is in [0.0, 1.0], but values outside that interval
 /// may provide interesting effects.  Over/underflows should saturate.
 void ImageBlend(Image img1, int x, int y, Image img2, double alpha) { ///
-  assert(img1 != NULL && img2 != NULL);
-  assert(ImageValidRect(img1, x, y, img2->width, img2->height));
-  assert(alpha >= 0.0 && alpha <= 1.0);
-
+  assert(img1 != NULL && img2 != NULL); // Verifica se as imagens não são nulas
+  assert(ImageValidRect(img1, x, y, img2->width, img2->height)); //Verifica se a opsição é válida
+  assert(alpha >= 0.0 && alpha <= 1.0); // Verifica se o alpha está no intervalo
+  // Junta os pixels de img2 em img1 usando o fator alpha
   for (int i = 0; i < img2->height; ++i) {
     for (int j = 0; j < img2->width; ++j) {
       int idx1 = (y + i) * img1->width + (x + j);
       int idx2 = i * img2->width + j;
-
+      // Calcula o valor do combinado e garante a saturação
       double blendedValue = alpha * img2->pixel[idx2] + (1 - alpha) * img1->pixel[idx1];
       img1->pixel[idx1] = (uint8)(blendedValue > 255.0 ? 255.0 : blendedValue + 0.5);
     }
@@ -594,10 +603,10 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) { ///
   assert (img2 != NULL);
   assert (ImageValidPos(img1, x, y));
   // Insert your code here!
-  if (x + img2->width > img1->width || y + img2->height > img1->height) {
+  if (x + img2->width > img1->width || y + img2->height > img1->height) { // Verifica se img2 cabe em img1 
     return 0; 
   }
-
+  // Compara cada pixel de img2 com a imagem correspondente em img1
   for (int i = 0; i < img2->height; ++i) {
     for (int j = 0; j < img2->width; ++j) {
       if (img1->pixel[(y + i) * img1->width + (x + j)] != img2->pixel[i * img2->width + j]) {
@@ -606,7 +615,7 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) { ///
     }
   }
 
-  return 1; 
+  return 1; // Se for tudo igual devolve verdadeiro
 }
 
 /// Locate a subimage inside another image.
@@ -617,20 +626,21 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
   assert (img1 != NULL);
   assert (img2 != NULL);
   // Insert your code here!
+  // Verifica se os ponteiros não são nulos
   assert(px != NULL);
   assert(py != NULL);
-
+  // Tenta encontrar uma correspondência de img2 em img1
   for (int y = 0; y <= img1->height - img2->height; y++) {
     for (int x = 0; x <= img1->width - img2->width; x++) {
-      if (ImageMatchSubImage(img1, x, y, img2)) {
+      if (ImageMatchSubImage(img1, x, y, img2)) { // Usa a função ImageMatchSubImage para ver se img2 correponde a uma subimagem de img1
         *px = x;
         *py = y;
-        return 1; 
+        return 1; // Encontrou correspondência
       }
     }
   }
 
-  return 0; 
+  return 0; // Correspondência não foi encontrada
 }
 
 
@@ -642,31 +652,32 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
 /// The image is changed in-place.
 void ImageBlur(Image img, int dx, int dy) { ///
   // Insert your code here!
-  assert(img != NULL);
-  FILTER_OPS++;
+  assert(img != NULL); // Verifica se existe imagem 
+  FILTER_OPS++; // Incrementa o contador de operações de filtragem
+  // Armazena as dimensões da imagem 
   int width = img->width;
   int height = img->height;
-  uint8* tempPixels = (uint8*)malloc(width * height * sizeof(uint8));
+  uint8* tempPixels = (uint8*)malloc(width * height * sizeof(uint8)); // Destina um buffer temporário para os pixels
   if (!tempPixels) {
-    return;
+    return; // Se falhar devolve sem fazer alterações
   }
 
-  // Copying original pixels to a temporary buffer
+  // Copia os pixels originais para um buffer temporário
   memcpy(tempPixels, img->pixel, width * height * sizeof(uint8));
 
-  // Applying blur to each pixel
+  // Aplica o desfoque a cada pixel
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       double sum = 0;
       int count = 0;
 
-      // Calculating the mean for the surrounding pixels
+      // Calcula a média para os pixels à volta
       for (int i = -dy; i <= dy; ++i) {
         for (int j = -dx; j <= dx; ++j) {
           int newY = y + i;
           int newX = x + j;
 
-          // Checking if the new coordinates are within the image boundaries
+          // Verifica se as novas coordenadas estão dentro dos limites da imagem
           if (newY >= 0 && newY < height && newX >= 0 && newX < width) {
             sum += tempPixels[newY * width + newX];
             count++;
@@ -674,12 +685,12 @@ void ImageBlur(Image img, int dx, int dy) { ///
         }
       }
 
-      // Updating the pixel value with the average
+      // Atualiza o valor do pixel com a média
       img->pixel[y * width + x] = (uint8)(sum / count + 0.5); // Adding 0.5 for rounding
     }
   }
 
-  // Freeing the temporary buffer
+  // Esvazia com o buffer temporário
   free(tempPixels);
 }
 
