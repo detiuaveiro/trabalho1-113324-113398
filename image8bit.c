@@ -463,6 +463,19 @@ void ImageBrighten(Image img, double factor) { ///
 Image ImageRotate(Image img) { ///
   assert (img != NULL);
   // Insert your code here!
+  Image newImg = ImageCreate(img->height, img->width, img->maxval);
+  if (newImg == NULL) return NULL;
+
+  for (int x = 0; x < img->width; x++) {
+    for (int y = 0; y < img->height; y++) {
+      uint8 pixel = img->pixel[y * img->width + x];
+      int newX = y;
+      int newY = img->width - 1 - x;
+      newImg->pixel[newY * newImg->width + newX] = pixel;
+    }
+  }
+
+  return newImg;
 }
 
 /// Mirror an image = flip left-right.
@@ -475,7 +488,21 @@ Image ImageRotate(Image img) { ///
 Image ImageMirror(Image img) { ///
   assert (img != NULL);
   // Insert your code here!
+  Image newImg = ImageCreate(img->width, img->height, img->maxval);
+  if (newImg == NULL) return NULL;
+
+  for (int x = 0; x < img->width; x++) {
+    for (int y = 0; y < img->height; y++) {
+      uint8 pixel = img->pixel[y * img->width + x];
+      int newX = img->width - 1 - x;
+      newImg->pixel[y * newImg->width + newX] = pixel;
+    }
+  }
+
+  return newImg;
 }
+
+
 
 /// Crop a rectangular subimage from img.
 /// The rectangle is specified by the top left corner coords (x, y) and
