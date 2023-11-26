@@ -698,11 +698,10 @@ void ImageBlur(Image img, int dx, int dy) { ///
 }
 void ImageFree(Image img) {
   if (img != NULL) {
-    // Free the image data
     if (img->pixel != NULL) {
         free(img->pixel);
     }
-    // Free the image struct itself
+
     free(img);
   }
 }
