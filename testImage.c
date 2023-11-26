@@ -15,12 +15,16 @@ int main(void) {
     Image img2 = ImageLoad("pgm/small/bird_256x256.pgm");
 
     // Variáveis para armazenar a posição da subimagem encontrada e o número de comparações
-    int pos_x, pos_y;
     int num_comparisons = 0;
-
+    int pos_x, pos_y;
+    for (int y = 0; y <= ImageHeight(img1) - ImageHeight(img2); y++) {
+    for (int x = 0; x <= ImageWidth(img1) - ImageWidth(img2); x++) {
+        num_comparisons = num_comparisons + 1;
+      }
+    }
     // Medir o tempo de execução
     double start_time = cpu_time();
-    int found = ImageLocateSubImage(img1, &pos_x, &pos_y, img2, &num_comparisons); // Adicionado o parâmetro para contar comparações
+    int found = ImageLocateSubImage(img1, &pos_x, &pos_y, img2); // Adicionado o parâmetro para contar comparações
     double finish_time = cpu_time();
     double exec_time = finish_time - start_time;
 
