@@ -622,19 +622,16 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) { ///
 /// Searches for img2 inside img1.
 /// If a match is found, returns 1 and matching position is set in vars (*px, *py).
 /// If no match is found, returns 0 and (*px, *py) are left untouched.
-int ImageLocateSubImage(Image img1, int* px, int* py, Image img2, int* num_comparisons) { ///
+int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
   assert (img1 != NULL);
   assert (img2 != NULL);
   // Insert your code here!
   // Verifica se os ponteiros não são nulos
   assert(px != NULL);
   assert(py != NULL);
-  assert(num_comparisons != NULL);
-  *num_comparisons = 0; // Inicializa o contador de comparações
   // Tenta encontrar uma correspondência de img2 em img1
   for (int y = 0; y <= img1->height - img2->height; y++) {
     for (int x = 0; x <= img1->width - img2->width; x++) {
-      (*num_comparisons)++; // Incrementa o contador de comparações
       if (ImageMatchSubImage(img1, x, y, img2)) { // Usa a função ImageMatchSubImage para ver se img2 correponde a uma subimagem de img1
         *px = x;
         *py = y;

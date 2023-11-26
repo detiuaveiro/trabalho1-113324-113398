@@ -203,7 +203,7 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) ;
 /// Searches for img2 inside img1.
 /// If a match is found, returns 1 and matching position is set in vars (*px, *py).
 /// If no match is found, returns 0 and (*px, *py) are left untouched.
-int ImageLocateSubImage(Image img1, int* px, int* py, Image img2, int* num_comparisons);
+int ImageLocateSubImage(Image img1, int* px, int* py, Image img2);
 /// Filtering
 
 /// Blur an image by a applying a (2dx+1)x(2dy+1) mean filter.
