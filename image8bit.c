@@ -629,7 +629,7 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
   // Verifica se os ponteiros não são nulos
   assert(px != NULL);
   assert(py != NULL);
-  
+
   // Tenta encontrar uma correspondência de img2 em img1
   for (int y = 0; y <= img1->height - img2->height; y++) {
     for (int x = 0; x <= img1->width - img2->width; x++) {
